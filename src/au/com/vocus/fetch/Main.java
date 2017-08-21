@@ -2,6 +2,7 @@ package au.com.vocus.fetch;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Hashtable;
 
 import org.apache.http.HttpHost;
 import org.apache.http.util.EntityUtils;
@@ -62,10 +63,17 @@ public class Main {
 	public static ElasticResponse testResponse(String jsonStr) {
 		ElasticParser parser = new ElasticParser();
 		ElasticResponse eObj = parser.parse(jsonStr);
+		
 		for(Object element : eObj.getHits().getRecords()) {
 			ElasticRecord record = (ElasticRecord) element;
+			Hashtable<String, String> table = parser.toDotNotation(record.get_source(), "abc");
 			System.out.println("id = " + record.get_id());
-			System.out.println("\t_source : " + record.get_source());
+			System.out.println("\t_source : " + "------------------------------------");
+			
+			for(String key : table.keySet()){
+				System.out.println("\t" + key + " : " + table.get(key));
+			}
+			
 		}
 		return eObj;
 	}
