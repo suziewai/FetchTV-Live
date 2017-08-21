@@ -3,6 +3,7 @@ package au.com.vocus.fetch;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.http.HttpHost;
 import org.apache.http.util.EntityUtils;
@@ -63,18 +64,54 @@ public class Main {
 	public static ElasticResponse testResponse(String jsonStr) {
 		ElasticParser parser = new ElasticParser();
 		ElasticResponse eObj = parser.parse(jsonStr);
-		
+		/*
 		for(Object element : eObj.getHits().getRecords()) {
 			ElasticRecord record = (ElasticRecord) element;
-			Hashtable<String, String> table = parser.toDotNotation(record.get_source(), "abc");
+			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), "abc", true);
+			System.out.println("id flat = " + record.get_id());
+			System.out.println("\t_source : " + "------------------------------------");
+			
+			print(table, "\t");
+		}
+		*/
+		for(Object element : eObj.getHits().getRecords()) {
+			ElasticRecord record = (ElasticRecord) element;
+			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), "abc");
 			System.out.println("id = " + record.get_id());
 			System.out.println("\t_source : " + "------------------------------------");
 			
-			for(String key : table.keySet()){
-				System.out.println("\t" + key + " : " + table.get(key));
-			}
-			
+			print(table);
 		}
 		return eObj;
+	}
+	
+	private static void print(Hashtable<String, Object> result) {
+		print(result, "\t");
+	}
+	
+	private static void print(Hashtable<String, Object> result, String prefix) {
+		
+		if(prefix == null || prefix == "")
+			prefix = "\t";
+		else
+			prefix += "\t";
+		
+		for(String key : result.keySet()){
+			Object obj = result.get(key);
+			
+			if(obj instanceof List<?>) {
+				System.out.println(prefix + key);
+				List<Hashtable<String, Object>> list = (List<Hashtable<String, Object>>) obj;
+				int i=0;
+				for(Hashtable<String, Object> listItem : list) {
+					print(listItem, prefix + " " + i);
+					i++;
+				}
+			}
+			else {
+				System.out.println(prefix + key + " : " + obj);
+			}
+		}
+		
 	}
 }
