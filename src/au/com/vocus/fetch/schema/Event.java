@@ -10,7 +10,7 @@ public class Event {
 	public Event(JSONObject json) {
 
 		event = (String)json.get("event");
-		data = new Data((JSONObject)json.get("data"));
+		data = "systemInfo".equals(event) ? new SystemInfo((JSONObject)json.get("data")) : new CurrentlyWatching((JSONObject)json.get("data"));
 	}
 
 	/**

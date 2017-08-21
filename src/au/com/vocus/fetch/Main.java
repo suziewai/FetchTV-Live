@@ -32,8 +32,8 @@ public class Main {
 			EntityUtils.consume(response.getEntity());
 			restClient.close();
 			
-			//print(parseResponse(responseTxt));
-			testResponse(responseTxt);
+			print(parseResponse(responseTxt));
+			//testParser(responseTxt);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -55,13 +55,13 @@ public class Main {
 			
 			for(Event event: record.getEvents()){
 				System.out.println("\t\tevent : " + event.getEvent());
-				System.out.println("\t\tdata : " + event.getData().getChannelId());
+				System.out.println("\t\tdata : " + event.getData().getEventTime());
 			}
 		}
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static ElasticResponse testResponse(String jsonStr) {
+	public static ElasticResponse testParser(String jsonStr) {
 		ElasticParser parser = new ElasticParser();
 		ElasticResponse eObj = parser.parse(jsonStr);
 		/*
@@ -76,7 +76,7 @@ public class Main {
 		*/
 		for(Object element : eObj.getHits().getRecords()) {
 			ElasticRecord record = (ElasticRecord) element;
-			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), "abc");
+			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), null);
 			System.out.println("id = " + record.get_id());
 			System.out.println("\t_source : " + "------------------------------------");
 			
