@@ -55,5 +55,5 @@ public class FetchTvRecord extends ElasticRecord{
 	public String getHouseholdUUID() {
 		return householdUUID;
 	}
-	
+
 }

@@ -10,7 +10,27 @@ public class Event {
 	public Event(JSONObject json) {
 
 		event = (String)json.get("event");
-		data = "systemInfo".equals(event) ? new SystemInfo((JSONObject)json.get("data")) : new CurrentlyWatching((JSONObject)json.get("data"));
+		JSONObject jsonData = (JSONObject)json.get("data");
+		switch(event) {
+			case "systemInfo":
+				data = new SystemInfo(jsonData);
+				break;
+			case "currentlyWatching":
+				data = new CurrentlyWatching(jsonData);
+			case "scheduleRecording":
+			case "startRecording":
+			case "stopRecording":
+				data = new Recording(jsonData);
+				break;
+			case "watchedMedia":
+				data = new WatchedMedia(jsonData);
+				break;
+			case "vodPurchaseSuccess":
+				data = new VodPurchaseSuccess(jsonData);
+			default:
+				data = new SomeData(jsonData);
+				
+		}
 	}
 
 	/**

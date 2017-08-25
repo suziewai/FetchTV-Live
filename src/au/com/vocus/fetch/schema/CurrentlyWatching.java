@@ -19,7 +19,7 @@ public class CurrentlyWatching implements Data{
 		eventTime = (Long)json.get("eventTime");
 		baseType = (String)json.get("baseType");
 		isPLTV = (Boolean)json.get("isPLTV");
-		channelId = (String)json.get("channelId");
+		channelId = json.get("channelId").toString();
 		mediaType = (String)json.get("mediaType");
 		playbackStatus = (String)json.get("playbackStatus");
 		currentMediaTitle = (String)json.get("currentMediaTitle");

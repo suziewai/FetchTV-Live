@@ -13,6 +13,8 @@ import org.elasticsearch.client.RestClient;
 import au.com.vocus.elastictool.parser.ElasticParser;
 import au.com.vocus.elastictool.schema.ElasticRecord;
 import au.com.vocus.elastictool.schema.ElasticResponse;
+import au.com.vocus.elastictool.schema.search.Query;
+import au.com.vocus.elastictool.schema.search.QueryString;
 import au.com.vocus.fetch.schema.Event;
 import au.com.vocus.fetch.schema.FetchTvRecord;
 
@@ -26,14 +28,21 @@ public class Main {
 		HttpHost hh = new HttpHost("search-fetchtvstore-ueyvbweznib7ipzh7fzzcvdfby.ap-southeast-2.es.amazonaws.com", 80, "http");
 		RestClient restClient = RestClient.builder(hh, hh).build();
 		
+		Query q = new Query();
+		QueryString qStr = new QueryString();
+		//qStr.setQuery("events.data.eventTime : >1492475905995");
+		qStr.setQuery("events.data.eventTime : >1502946055032");
+		q.addCriteria(qStr);
+		
 		try {
-			Response response = restClient.performRequest("GET", "/fetchtv/_search", Collections.singletonMap("pretty", "true"));
+			Response response = restClient.performRequest("GET", "/fetchtv/_search", Collections.singletonMap("source", ElasticParser.getSearchQuery(q)));
 			String responseTxt = EntityUtils.toString(response.getEntity());
 			EntityUtils.consume(response.getEntity());
 			restClient.close();
 			
-			print(parseResponse(responseTxt));
 			//testParser(responseTxt);
+			print(parseResponse(responseTxt));
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -55,7 +64,7 @@ public class Main {
 			
 			for(Event event: record.getEvents()){
 				System.out.println("\t\tevent : " + event.getEvent());
-				System.out.println("\t\tdata : " + event.getData().getEventTime());
+				System.out.println("\t\tdata.eventTime : " + event.getData().getEventTime());
 			}
 		}
 	}
