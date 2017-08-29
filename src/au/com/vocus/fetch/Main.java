@@ -1,9 +1,8 @@
 package au.com.vocus.fetch;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
 
 import org.apache.http.HttpHost;
 import org.apache.http.util.EntityUtils;
@@ -11,37 +10,39 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
 import au.com.vocus.elastictool.parser.ElasticParser;
-import au.com.vocus.elastictool.schema.ElasticRecord;
 import au.com.vocus.elastictool.schema.ElasticResponse;
+import au.com.vocus.elastictool.schema.search.Bool;
+import au.com.vocus.elastictool.schema.search.Match;
+import au.com.vocus.elastictool.schema.search.Must;
+import au.com.vocus.elastictool.schema.search.MustNot;
 import au.com.vocus.elastictool.schema.search.Query;
-import au.com.vocus.elastictool.schema.search.QueryString;
+import au.com.vocus.elastictool.schema.search.Range;
+import au.com.vocus.fetch.dao.DataAccessManager;
 import au.com.vocus.fetch.schema.Event;
 import au.com.vocus.fetch.schema.FetchTvRecord;
+import au.com.vocus.fetch.schema.WatchedMedia;
 
 
 public class Main {
 
+	static FetchProperty prop = new FetchProperty();
+	static Long lastEventDate = prop.getLastEventDate();
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		HttpHost hh = new HttpHost("search-fetchtvstore-ueyvbweznib7ipzh7fzzcvdfby.ap-southeast-2.es.amazonaws.com", 80, "http");
+		HttpHost hh = new HttpHost(prop.getServerURL(), 80, "http");
 		RestClient restClient = RestClient.builder(hh, hh).build();
 		
-		Query q = new Query();
-		QueryString qStr = new QueryString();
-		//qStr.setQuery("events.data.eventTime : >1492475905995");
-		qStr.setQuery("events.data.eventTime : >1502946055032");
-		q.addCriteria(qStr);
-		
 		try {
-			Response response = restClient.performRequest("GET", "/fetchtv/_search", Collections.singletonMap("source", ElasticParser.getSearchQuery(q)));
+			Response response = restClient.performRequest("GET", prop.getResource(), Collections.singletonMap("source", ElasticParser.buildSearchQuery(getQuery())));
 			String responseTxt = EntityUtils.toString(response.getEntity());
 			EntityUtils.consume(response.getEntity());
 			restClient.close();
 			
-			//testParser(responseTxt);
 			print(parseResponse(responseTxt));
+			persist(parseResponse(responseTxt));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -49,13 +50,59 @@ public class Main {
 		}
 	}
 	
-	public static ElasticResponse<FetchTvRecord> parseResponse(String jsonStr) {
+	private static Query getQuery() {
+		
+		Must must = new Must();
+		if(lastEventDate != null) {
+			Range eventTime = new Range();
+			eventTime.setField("events.data.eventTime");
+			eventTime.addRange(Range.PARAM.gt, lastEventDate.toString());
+			must.addCriteria(eventTime);
+		}
+		
+		Match event = new Match();
+		event.setField("events.event");
+		event.setMatch(" watchedMedia");
+		must.addCriteria(event);
+		
+		MustNot mustNot = new MustNot();
+		Match currentSurface = new Match();
+		currentSurface.setField("events.data.currentSurface");
+		currentSurface.setMatch("RECORDINGS:recordings");
+		mustNot.addCriteria(currentSurface);
+		
+		
+		Bool bool = new Bool();
+		bool.addCriteria(must);
+		bool.addCriteria(mustNot);
+		
+		Query q = new Query();
+		q.addCriteria(bool);
+		return q;
+	}
+	
+	private static ElasticResponse<FetchTvRecord> parseResponse(String jsonStr) {
 		ElasticParser parser = new ElasticParser();
 		ElasticResponse<FetchTvRecord> eObj = parser.parse(jsonStr, FetchTvRecord.class);
 		return eObj;
 	}
 	
-	public static void print(ElasticResponse<FetchTvRecord> response) {
+	private static void persist(ElasticResponse<FetchTvRecord> records) {
+
+		try {
+			DataAccessManager manager = new DataAccessManager(prop.getConnectionString(), prop.getUsername(), prop.getPassword());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	
+	private static void print(ElasticResponse<FetchTvRecord> response) {
 		for(FetchTvRecord record : response.getHits().getRecords()) {
 			System.out.println("id = " + record.get_id());
 			System.out.println("\tispCustomerRef : " + record.getIspCustomerRef());
@@ -65,62 +112,14 @@ public class Main {
 			for(Event event: record.getEvents()){
 				System.out.println("\t\tevent : " + event.getEvent());
 				System.out.println("\t\tdata.eventTime : " + event.getData().getEventTime());
-			}
-		}
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public static ElasticResponse testParser(String jsonStr) {
-		ElasticParser parser = new ElasticParser();
-		ElasticResponse eObj = parser.parse(jsonStr);
-		/*
-		for(Object element : eObj.getHits().getRecords()) {
-			ElasticRecord record = (ElasticRecord) element;
-			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), "abc", true);
-			System.out.println("id flat = " + record.get_id());
-			System.out.println("\t_source : " + "------------------------------------");
-			
-			print(table, "\t");
-		}
-		*/
-		for(Object element : eObj.getHits().getRecords()) {
-			ElasticRecord record = (ElasticRecord) element;
-			Hashtable<String, Object> table = parser.toDotNotation(record.get_source(), null);
-			System.out.println("id = " + record.get_id());
-			System.out.println("\t_source : " + "------------------------------------");
-			
-			print(table);
-		}
-		return eObj;
-	}
-	
-	private static void print(Hashtable<String, Object> result) {
-		print(result, "\t");
-	}
-	
-	private static void print(Hashtable<String, Object> result, String prefix) {
-		
-		if(prefix == null || prefix == "")
-			prefix = "\t";
-		else
-			prefix += "\t";
-		
-		for(String key : result.keySet()){
-			Object obj = result.get(key);
-			
-			if(obj instanceof List<?>) {
-				System.out.println(prefix + key);
-				List<Hashtable<String, Object>> list = (List<Hashtable<String, Object>>) obj;
-				int i=0;
-				for(Hashtable<String, Object> listItem : list) {
-					print(listItem, prefix + " " + i);
-					i++;
+				if(event.getData() instanceof WatchedMedia) {
+					WatchedMedia watched = (WatchedMedia)event.getData();
+					System.out.println("\t\tdata.currentSurface : " + watched.getCurrentSurface());
+					System.out.println("\t\tdata.application : " + watched.getApplicationName());
+					System.out.println("\t\tdata.series : " + watched.getSeriesId());
 				}
 			}
-			else {
-				System.out.println(prefix + key + " : " + obj);
-			}
 		}
-		
 	}
+	
 }

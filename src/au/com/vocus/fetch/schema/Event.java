@@ -12,6 +12,7 @@ public class Event {
 		event = (String)json.get("event");
 		JSONObject jsonData = (JSONObject)json.get("data");
 		switch(event) {
+		/*
 			case "systemInfo":
 				data = new SystemInfo(jsonData);
 				break;
@@ -22,11 +23,13 @@ public class Event {
 			case "stopRecording":
 				data = new Recording(jsonData);
 				break;
+			case "vodPurchaseSuccess":
+				data = new VodPurchaseSuccess(jsonData);
+				*/
 			case "watchedMedia":
 				data = new WatchedMedia(jsonData);
 				break;
-			case "vodPurchaseSuccess":
-				data = new VodPurchaseSuccess(jsonData);
+			
 			default:
 				data = new SomeData(jsonData);
 				

@@ -20,5 +20,4 @@ public class SomeData implements Data {
 	public String getjsonData() {
 		return jsonData.toString();
 	}
-
 }

@@ -6,53 +6,74 @@ public class WatchedMedia implements Data {
 
 	private Long startDate;
 	private Long eventTime;
-	private String previousSurface;
 	private Long endDate;
+	
+	private String previousSurface;
+	private String currentSurface;
 	private String navigationSource;
+	
+	private String channelId;
+	private String programId;
+	private String epgProgramId;
+	private String seriesId;
+	private String episodeId;
+	private String recordingId;
+	
+	private Long mediaDuration;
 	private Long durationWatched;
-	private Long recordingId;
+	private Double precentageWatched;
+	
 	private String baseType;
 	private String mediaType;
+	
+	private Long item_indentifier;
+	private Long dataReceived;
 	private Long averageBitRate;
 	private Long hlsMaxStream;
-	private String programId;
-	private String title;
-	private Boolean recordingModified;
-	private Long mediaDuration;
 	private Long hlsMinStream;
-	private String currentSurface;
-	private Long epgProgramId;
+	
+	private String title;
+	private String applicationName;
+	private String seriesName;
 	private String viewActions;
-	private String channelId;
-	private Long dateRecived;
-	private Long item_indentifier;
-	private Double precentageWatched;
+	private String programsWatched;
+		
 	
 	public WatchedMedia(JSONObject json) {
 		startDate = (Long)json.get("startDate");
 		eventTime = (Long)json.get("eventTime");
-		previousSurface = (String)json.get("previousSurface");
 		endDate = (Long)json.get("endDate");
+		
+		previousSurface = (String)json.get("previousSurface");
+		currentSurface = (String)json.get("currentSurface");
 		navigationSource = (String)json.get("navigationSource");
+		
+		channelId = json.get("channelId") != null ? json.get("channelId").toString() : null;
+		programId = json.get("programId") != null ? json.get("programId").toString() : null;
+		epgProgramId = json.get("epgProgramId") != null ? json.get("epgProgramId").toString() : null;
+		seriesId = json.get("seriesId") != null ? json.get("seriesId").toString() : null;
+		episodeId = json.get("episodeId") != null ? json.get("episodeId").toString() : null;
+		recordingId = json.get("recordingId") != null ? json.get("recordingId").toString() : null;
+		
+		mediaDuration = (Long)json.get("mediaDuration");
 		durationWatched = (Long)json.get("durationWatched");
-		recordingId = (Long)json.get("recordingId");
+		precentageWatched= (Double)json.get("precentageWatched");
+		
 		baseType = (String)json.get("baseType");
 		mediaType = (String)json.get("mediaType");
+		
+		item_indentifier = (Long)json.get("item_indentifier");
+		dataReceived = (Long)json.get("dataRecived");
 		averageBitRate = (Long)json.get("averageBitRate");
 		hlsMaxStream = (Long)json.get("hlsMaxStream");
-		programId = json.get("programId") != null ? json.get("programId").toString() : null;
-		title = (String)json.get("title");
-		recordingModified = (Boolean)json.get("recordingModified");
-		mediaDuration = (Long)json.get("mediaDuration");
 		hlsMinStream = (Long)json.get("hlsMinStream");
-		currentSurface = (String)json.get("currentSurface");
-		epgProgramId = (Long)json.get("epgProgramId");
+		
+		title = (String)json.get("title");
+		applicationName = (String)json.get("applicationName");
+		seriesName = (String)json.get("seriesName");
 		viewActions = (String)json.get("viewActions");
-		if(json.get("channelId") != null)
-			channelId = json.get("channelId").toString();
-		dateRecived = (Long)json.get("dateRecived");
-		item_indentifier = (Long)json.get("item_indentifier");
-		precentageWatched= (Double)json.get("precentageWatched");
+		programsWatched = (String)json.get("programsWatched");
+		
 	}
 	
 	@Override
@@ -68,6 +89,13 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
+	 * @return the endDate
+	 */
+	public Long getEndDate() {
+		return endDate;
+	}
+
+	/**
 	 * @return the previousSurface
 	 */
 	public String getPreviousSurface() {
@@ -75,10 +103,10 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the endDate
+	 * @return the currentSurface
 	 */
-	public Long getEndDate() {
-		return endDate;
+	public String getCurrentSurface() {
+		return currentSurface;
 	}
 
 	/**
@@ -89,17 +117,66 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the surationWatched
+	 * @return the channelId
+	 */
+	public String getChannelId() {
+		return channelId;
+	}
+
+	/**
+	 * @return the programId
+	 */
+	public String getProgramId() {
+		return programId;
+	}
+
+	/**
+	 * @return the epgProgramId
+	 */
+	public String getEpgProgramId() {
+		return epgProgramId;
+	}
+
+	/**
+	 * @return the seriesId
+	 */
+	public String getSeriesId() {
+		return seriesId;
+	}
+
+	/**
+	 * @return the episodeId
+	 */
+	public String getEpisodeId() {
+		return episodeId;
+	}
+
+	/**
+	 * @return the recordingId
+	 */
+	public String getRecordingId() {
+		return recordingId;
+	}
+
+	/**
+	 * @return the mediaDuration
+	 */
+	public Long getMediaDuration() {
+		return mediaDuration;
+	}
+
+	/**
+	 * @return the durationWatched
 	 */
 	public Long getDurationWatched() {
 		return durationWatched;
 	}
 
 	/**
-	 * @return the recordingId
+	 * @return the precentageWatched
 	 */
-	public Long getRecordingId() {
-		return recordingId;
+	public Double getPrecentageWatched() {
+		return precentageWatched;
 	}
 
 	/**
@@ -117,6 +194,20 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
+	 * @return the item_indentifier
+	 */
+	public Long getItem_indentifier() {
+		return item_indentifier;
+	}
+
+	/**
+	 * @return the dataReceived
+	 */
+	public Long getDataReceived() {
+		return dataReceived;
+	}
+
+	/**
 	 * @return the averageBitRate
 	 */
 	public Long getAverageBitRate() {
@@ -131,10 +222,10 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the programId
+	 * @return the hlsMinStream
 	 */
-	public String getProgramId() {
-		return programId;
+	public Long getHlsMinStream() {
+		return hlsMinStream;
 	}
 
 	/**
@@ -143,40 +234,19 @@ public class WatchedMedia implements Data {
 	public String getTitle() {
 		return title;
 	}
-
+	
 	/**
-	 * @return the recordingModified
+	 * @return the applicationName
 	 */
-	public Boolean getRecordingModified() {
-		return recordingModified;
+	public String getApplicationName() {
+		return applicationName;
 	}
 
 	/**
-	 * @return the mediaDuration
+	 * @return the seriesName
 	 */
-	public Long getMediaDuration() {
-		return mediaDuration;
-	}
-
-	/**
-	 * @return the hlsMinStream
-	 */
-	public Long getHlsMinStream() {
-		return hlsMinStream;
-	}
-
-	/**
-	 * @return the currentSurface
-	 */
-	public String getCurrentSurface() {
-		return currentSurface;
-	}
-
-	/**
-	 * @return the epgProgramId
-	 */
-	public Long getEpgProgramId() {
-		return epgProgramId;
+	public String getSeriesName() {
+		return seriesName;
 	}
 
 	/**
@@ -187,31 +257,10 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the channelId
+	 * @return the programsWatched
 	 */
-	public String getChannelId() {
-		return channelId;
-	}
-
-	/**
-	 * @return the dateRecived
-	 */
-	public Long getDateRecived() {
-		return dateRecived;
-	}
-
-	/**
-	 * @return the item_indentifier
-	 */
-	public Long getItem_indentifier() {
-		return item_indentifier;
-	}
-
-	/**
-	 * @return the precentageWatched
-	 */
-	public Double getPrecentageWatched() {
-		return precentageWatched;
+	public String getProgramsWatched() {
+		return programsWatched;
 	}
 
 }
