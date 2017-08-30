@@ -3,9 +3,13 @@ package au.com.vocus.fetch.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Instant;
 import java.util.Properties;
 
+import au.com.vocus.fetch.schema.Event;
 import au.com.vocus.fetch.schema.FetchTvRecord;
+import au.com.vocus.fetch.schema.WatchedMedia;
 
 public class DataAccessManager {
 
@@ -21,69 +25,94 @@ public class DataAccessManager {
         conn = DriverManager.getConnection(connStr, props);
 	}
 	
-	public void insertRecord(FetchTvRecord record) {
+	public Long insertRecord(FetchTvRecord record, Long lastEventDate) throws SQLException {
+		Long newEventDate = lastEventDate;
+		for(Event event : record.getEvents()) {
+			if(!(event.getData() instanceof WatchedMedia))
+				continue;
+			
+			WatchedMedia data = (WatchedMedia) event.getData();
+			if(data.getEventTime() > lastEventDate && (data.getCurrentSurface() == null || !data.getCurrentSurface().startsWith("RECORDINGS:recordings"))) {
+				String sql = buildSql(record, data);
+				Statement statement = conn.createStatement();
+				statement.execute(sql);
+			
+				newEventDate = data.getEventTime() > newEventDate ? data.getEventTime() : newEventDate;
+			}
+		}
+		return newEventDate;
+	}
+	
+	private String buildSql(FetchTvRecord record, WatchedMedia data) {
+		
 		String sql = "INSERT INTO fetchtv.watched_media_event ("
-					+ " ispcustomerref,"
-					+ "  terminaluuid,"
-					+ "  householduuid,"
-					+ "  startdate,"
-					+ "  eventtime,"
-					+ "  enddate,"
-					+ "  previoussurface,"
-					+ "  currentsurface,"
-					+ "  navigationsource,"
-					+ "  channelid,"
-					+ "  programid,"
-					+ "  epgprogramid,"
-					+ "  seriesid,"
-					+ "  episodeid,"
-					+ "  recordingid,"
-					+ "  mediaduration,"
-					+ "  durationwatched,"
-					+ "  percentagewatched,"
-					+ "  basetype,"
-					+ "  mediatype,"
+					+ " isp_customer_ref,"
+					+ "  terminal_uuid,"
+					+ "  household_uuid,"
+					+ "  start_date,"
+					+ "  event_time,"
+					+ "  end_date,"
+					+ "  previous_surface,"
+					+ "  current_surface,"
+					+ "  navigation_source,"
+					+ "  channel_id,"
+					+ "  program_id,"
+					+ "  series_id,"
+					+ "  episode_id,"
+					+ "  recording_id,"
+					+ "  media_duration,"
+					+ "  duration_watched,"
+					+ "  percentage_watched,"
+					+ "  base_type,"
+					+ "  media_type,"
 					+ "  item_identifier,"
-					+ "  datareceived,"
-					+ "  averagebitrate,"
-					+ "  hlsmaxstream,"
-					+ "  hlsminstream,"
+					+ "  data_received,"
+					+ "  average_bit_rate,"
+					+ "  hls_max_stream,"
+					+ "  hls_min_stream,"
 					+ "  title,"
-					+ "  applicationname,"
-					+ "  seriesname"
+					+ "  application_name,"
+					+ "  series_name"
 					+ ")"
 					+ "VALUES"
 					+ "("
-					+ "  '" + ispcustomerref_value + "',"
-					+ "  '" + terminaluuid_value + "',"
-					+ "  '" + householduuid_value + "',"
-					+ "  '" + startdate_value + "',"
-					+ "  '" + eventtime_value + "',"
-					+ "  '" + enddate_value + "',"
-					+ "  '" + previoussurface_value + "',"
-					+ "  '" + currentsurface_value + "',"
-					+ "  '" + navigationsource_value + "',"
-					+ "  '" + channelid_value + "',"
-					+ "  '" + programid_value + "',"
-					+ "  '" + epgprogramid_value + "',"
-					+ "  '" + seriesid_value + "',"
-					+ "  '" + episodeid_value + "',"
-					+ "  '" + recordingid_value + "',"
-					+ "  '" + mediaduration_value + "',"
-					+ "  '" + durationwatched_value + "',"
-					+ "  '" + percentagewatched_value + "',"
-					+ "  '" + basetype_value + "',"
-					+ "  '" + mediatype_value + "',"
-					+ "  '" + item_identifier_value + "',"
-					+ "  '" + datareceived_value + "',"
-					+ "  '" + averagebitrate_value + "',"
-					+ "  '" + hlsmaxstream_value + "',"
-					+ "  '" + hlsminstream_value + "',"
-					+ "  '" + title_value + "',"
-					+ "  '" + applicationname_value + "',"
-					+ "  '" + seriesname_value + "',"
+					+ "  '" + record.getIspCustomerRef() + "',"
+					+ "  '" + record.getTerminalUUID() + "',"
+					+ "  '" + record.getHouseholdUUID() + "',"
+					+ "  '" + convertDate(data.getStartDate()) + "',"
+					+ "  '" + convertDate(data.getEventTime()) + "',"
+					+ "  '" + convertDate(data.getEndDate()) + "',"
+					+ "  '" + data.getPreviousSurface() + "',"
+					+ "  '" + data.getCurrentSurface() + "',"
+					+ "  '" + data.getNavigationSource() + "',"
+					+ "  '" + data.getChannelId() + "',"
+					+ "  '" + data.getProgramId() + "',"
+					+ "  '" + data.getSeriesId() + "',"
+					+ "  '" + data.getEpisodeId() + "',"
+					+ "  '" + data.getRecordingId() + "',"
+					+ "  " + data.getMediaDuration() + ","
+					+ "  " + data.getDurationWatched() + ","
+					+ "  " + data.getPercentageWatched() + ","
+					+ "  '" + data.getBaseType() + "',"
+					+ "  '" + data.getMediaType() + "',"
+					+ "  " + data.getItem_identifier() + ","
+					+ "  " + data.getDataReceived() + ","
+					+ "  " + data.getAverageBitRate() + ","
+					+ "  " + data.getHlsMaxStream() + ","
+					+ "  " + data.getHlsMinStream() + ","
+					+ "  '" + data.getTitle() + "',"
+					+ "  '" + data.getApplicationName() + "',"
+					+ "  '" + data.getSeriesName() + "'"
 				    + ");";
 
+		return sql;
+	}
 
+	private String convertDate(Long date) {
+		if (date == null)
+			return null;
+		
+		Instant timestamp = Instant.ofEpochMilli(date);
+		return timestamp.toString();
 	}
 }

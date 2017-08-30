@@ -14,19 +14,18 @@ public class WatchedMedia implements Data {
 	
 	private String channelId;
 	private String programId;
-	private String epgProgramId;
 	private String seriesId;
 	private String episodeId;
 	private String recordingId;
 	
 	private Long mediaDuration;
 	private Long durationWatched;
-	private Double precentageWatched;
+	private Double percentageWatched;
 	
 	private String baseType;
 	private String mediaType;
 	
-	private Long item_indentifier;
+	private Long item_identifier;
 	private Long dataReceived;
 	private Long averageBitRate;
 	private Long hlsMaxStream;
@@ -50,20 +49,19 @@ public class WatchedMedia implements Data {
 		
 		channelId = json.get("channelId") != null ? json.get("channelId").toString() : null;
 		programId = json.get("programId") != null ? json.get("programId").toString() : null;
-		epgProgramId = json.get("epgProgramId") != null ? json.get("epgProgramId").toString() : null;
 		seriesId = json.get("seriesId") != null ? json.get("seriesId").toString() : null;
 		episodeId = json.get("episodeId") != null ? json.get("episodeId").toString() : null;
 		recordingId = json.get("recordingId") != null ? json.get("recordingId").toString() : null;
 		
 		mediaDuration = (Long)json.get("mediaDuration");
 		durationWatched = (Long)json.get("durationWatched");
-		precentageWatched= (Double)json.get("precentageWatched");
+		percentageWatched= (Double)json.get("percentageWatched");
 		
 		baseType = (String)json.get("baseType");
 		mediaType = (String)json.get("mediaType");
 		
-		item_indentifier = (Long)json.get("item_indentifier");
-		dataReceived = (Long)json.get("dataRecived");
+		item_identifier = (Long)json.get("item_identifier");
+		dataReceived = (Long)json.get("dataReceived");
 		averageBitRate = (Long)json.get("averageBitRate");
 		hlsMaxStream = (Long)json.get("hlsMaxStream");
 		hlsMinStream = (Long)json.get("hlsMinStream");
@@ -131,13 +129,6 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the epgProgramId
-	 */
-	public String getEpgProgramId() {
-		return epgProgramId;
-	}
-
-	/**
 	 * @return the seriesId
 	 */
 	public String getSeriesId() {
@@ -173,10 +164,10 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the precentageWatched
+	 * @return the percentageWatched
 	 */
-	public Double getPrecentageWatched() {
-		return precentageWatched;
+	public Double getPercentageWatched() {
+		return percentageWatched;
 	}
 
 	/**
@@ -194,10 +185,10 @@ public class WatchedMedia implements Data {
 	}
 
 	/**
-	 * @return the item_indentifier
+	 * @return the item_identifier
 	 */
-	public Long getItem_indentifier() {
-		return item_indentifier;
+	public Long getItem_identifier() {
+		return item_identifier;
 	}
 
 	/**

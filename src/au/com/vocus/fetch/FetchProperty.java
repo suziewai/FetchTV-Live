@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 public class FetchProperty {
@@ -18,13 +17,11 @@ public class FetchProperty {
 		public static String USERNAME = "database.access.username";
 		public static String PASSWORD = "database.access.password";
 		public static String TABLE_NAME = "database.data.table";
-		public static String DATE_FORMAT = "database.data.dateFormat";
 		
 	}
 
 	private static final String filename = "fetch.properties";
 	private Properties PROPS = new Properties();
-	private SimpleDateFormat df;
 	private Long lastFileDate;
 	
 	public FetchProperty() {
@@ -32,8 +29,6 @@ public class FetchProperty {
             final InputStream inputStream = new FileInputStream(filename);
             PROPS.load(inputStream);
             inputStream.close();
-            
-            df = new SimpleDateFormat(PROPS.getProperty(PropertyKey.DATE_FORMAT));
             
         } catch (IOException e) {
             System.out.println("Error loading properties file.");
@@ -65,12 +60,6 @@ public class FetchProperty {
 		return PROPS.getProperty(PropertyKey.TABLE_NAME);
 	}
 	
-	public String getDateFormat() {
-		return PROPS.getProperty(PropertyKey.DATE_FORMAT);
-	}
-	
-	
-	
 	public Long getLastEventDate() {
 		if(PROPS.getProperty(PropertyKey.LAST_EVENT_DATE) == null || PROPS.getProperty(PropertyKey.LAST_EVENT_DATE).trim().isEmpty())
 			return null;
@@ -88,7 +77,7 @@ public class FetchProperty {
 	}
 	
 	public void setLastEventDate(Long datetime) {
-		PROPS.put(PropertyKey.LAST_EVENT_DATE, datetime);
+		PROPS.put(PropertyKey.LAST_EVENT_DATE, datetime.toString());
 	}
 	
 	public void save() {
