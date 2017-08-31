@@ -44,7 +44,7 @@ public class Main {
 			
 			
 			ElasticResponse<FetchTvRecord> resp = parseResponse(responseTxt);
-			print(resp);
+			//print(resp);
 			persist(resp);
 			/*
 			System.out.println("Total = " + resp.getHits().getTotal());
@@ -126,7 +126,7 @@ public class Main {
 		
 		Query q = new Query();
 		q.addCriteria(bool);
-		System.out.println(ElasticParser.buildSearchQuery(q));
+		//System.out.println(ElasticParser.buildSearchQuery(q));
 		return q;
 	}
 	
