@@ -46,6 +46,7 @@ public class Main {
 			ElasticResponse<FetchTvRecord> resp = parseResponse(responseTxt);
 			print(resp);
 			persist(resp);
+			/*
 			System.out.println("Total = " + resp.getHits().getTotal());
 			while(resp.getHits().getRecords().size() > 0) {
 				System.out.println(resp.get_scroll_id());
@@ -58,13 +59,13 @@ public class Main {
 				print(resp);
 				persist(resp);
 			}
-			
+			*/
 			restClient.close();
 			
 			prop.setLastEventDate(newEventDate);
 			prop.save();
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -73,8 +74,8 @@ public class Main {
 	private static Map<String, String> getSearchParams() {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("source", ElasticParser.buildSearchQuery(getQuery()));
-		params.put("size", "200");
-		params.put("scroll", "5m");
+		params.put("size", prop.getPagesize());
+		//params.put("scroll", "5m");
 		return params;
 	}
 	

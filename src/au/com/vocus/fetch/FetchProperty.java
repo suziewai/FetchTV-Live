@@ -11,6 +11,7 @@ public class FetchProperty {
 	public static class PropertyKey {
 		public static String SERVER_URL = "server.url";
 		public static String API_RESOURCE = "server.resource";
+		public static String PAGESIZE = "search.pagesize";
 		public static String LAST_EVENT_DATE = "event.lastevent.date";
 		
 		public static String CONNECTION_STRING = "database.access.connectionString";
@@ -42,6 +43,10 @@ public class FetchProperty {
 
 	public String getResource() {
 		return PROPS.getProperty(PropertyKey.API_RESOURCE);
+	}
+	
+	public String getPagesize() {
+		return PROPS.getProperty(PropertyKey.PAGESIZE);
 	}
 	
 	public String getConnectionString() {
