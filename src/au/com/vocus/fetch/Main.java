@@ -1,6 +1,5 @@
 package au.com.vocus.fetch;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,7 +141,7 @@ public class Main {
 			DataAccessManager manager = new DataAccessManager(prop.getConnectionString(), prop.getUsername(), prop.getPassword());
 			for(FetchTvRecord record : records.getHits().getRecords()) {
 				Long tempEventDate = manager.insertRecord(record, lastEventDate);
-				newEventDate = tempEventDate > newEventDate ? tempEventDate : newEventDate;
+				newEventDate = (newEventDate == null || tempEventDate > newEventDate) ? tempEventDate : newEventDate;
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

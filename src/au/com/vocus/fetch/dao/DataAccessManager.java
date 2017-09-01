@@ -25,6 +25,25 @@ public class DataAccessManager {
         conn = DriverManager.getConnection(connStr, props);
 	}
 	
+	public boolean isNewRecord(WatchedMedia data, Long lastEventDate) {
+		
+		// We don't want ANY "RECORDINGS"
+		try {
+			if(data.getCurrentSurface().startsWith("RECORDINGS:recordings"))
+				return false;
+		} catch(Exception e){
+			//currentSurface can be null sometimes.
+		}
+				
+		if(lastEventDate == null)
+			return true;
+		
+		if(data.getEventTime() > lastEventDate)
+			return true;
+		
+		return false;
+	}
+	
 	public Long insertRecord(FetchTvRecord record, Long lastEventDate) throws SQLException {
 		Long newEventDate = lastEventDate;
 		for(Event event : record.getEvents()) {
@@ -32,13 +51,12 @@ public class DataAccessManager {
 				continue;
 			
 			WatchedMedia data = (WatchedMedia) event.getData();
-			if(data.getEventTime() > lastEventDate && (data.getCurrentSurface() == null || !data.getCurrentSurface().startsWith("RECORDINGS:recordings"))) {
+			if(isNewRecord(data, lastEventDate)) {
 				String sql = buildSql(record, data);
 				Statement statement = conn.createStatement();
 				statement.execute(sql);
-			
-				newEventDate = data.getEventTime() > newEventDate ? data.getEventTime() : newEventDate;
 			}
+			newEventDate = (newEventDate == null || data.getEventTime() > newEventDate) ? data.getEventTime() : newEventDate;
 		}
 		return newEventDate;
 	}
