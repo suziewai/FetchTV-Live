@@ -1,10 +1,12 @@
 package au.com.vocus.fetch;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpHost;
+import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -45,20 +47,7 @@ public class Main {
 			ElasticResponse<FetchTvRecord> resp = parseResponse(responseTxt);
 			//print(resp);
 			persist(resp);
-			/*
-			System.out.println("Total = " + resp.getHits().getTotal());
-			while(resp.getHits().getRecords().size() > 0) {
-				System.out.println(resp.get_scroll_id());
-				
-				response = restClient.performRequest("GET", prop.getResource() + "/scroll", getScrollParams(resp.get_scroll_id()));
-				//response = restClient.performRequest("GET", prop.getResource() + "/scroll", Collections.<String, String>emptyMap(), getScrollParams(resp.get_scroll_id()));
-				responseTxt = EntityUtils.toString(response.getEntity());
-				EntityUtils.consume(response.getEntity());
-				resp = parseResponse(responseTxt);
-				print(resp);
-				persist(resp);
-			}
-			*/
+			//scroll(restClient, resp);
 			restClient.close();
 			
 			prop.setLastEventDate(newEventDate);
@@ -77,25 +66,7 @@ public class Main {
 		//params.put("scroll", "5m");
 		return params;
 	}
-	
-	private static Map<String, String> getScrollParams(String scrollId) {
-	//private static HttpEntity getScrollParams(String scrollId) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("scroll_id", scrollId);
-		params.put("scroll", "5m");
-		return params;
-		/*
-		JSONObject obj = new JSONObject();
-		obj.put("scroll", "5m");
-		obj.put("scroll_id", scrollId);
-		params.put("body", obj.toJSONString());
-		return params;
 		
-		HttpEntity entity = new org.apache.http.entity.StringEntity(obj.toJSONString(), ContentType.APPLICATION_JSON);
-		return entity;
-		*/
-	}
-	
 	private static Query getQuery() {
 		
 		Must must = new Must();
@@ -136,13 +107,14 @@ public class Main {
 	}
 	
 	private static void persist(ElasticResponse<FetchTvRecord> records) {
-
+		System.out.println(new java.util.Date() + " - Establishing DB connection...");
 		try {
 			DataAccessManager manager = new DataAccessManager(prop.getConnectionString(), prop.getUsername(), prop.getPassword());
 			for(FetchTvRecord record : records.getHits().getRecords()) {
 				Long tempEventDate = manager.insertRecord(record, lastEventDate);
 				newEventDate = (newEventDate == null || tempEventDate > newEventDate) ? tempEventDate : newEventDate;
 			}
+			manager.closeConn();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,6 +122,7 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println(new java.util.Date() + " - Insert records commpleted!");
 	}
 
 	
@@ -171,6 +144,43 @@ public class Main {
 				}
 			}
 		}
+	}
+	
+	
+	
+	private static void scroll(RestClient restClient, ElasticResponse<FetchTvRecord> resp) throws ParseException, IOException {
+		
+		System.out.println("Total = " + resp.getHits().getTotal());
+		while(resp.getHits().getRecords().size() > 0) {
+			System.out.println(resp.get_scroll_id());
+			
+			Response response = restClient.performRequest("GET", prop.getResource() + "/scroll", getScrollParams(resp.get_scroll_id()));
+			//response = restClient.performRequest("GET", prop.getResource() + "/scroll", Collections.<String, String>emptyMap(), getScrollParams(resp.get_scroll_id()));
+			String responseTxt = EntityUtils.toString(response.getEntity());
+			EntityUtils.consume(response.getEntity());
+			resp = parseResponse(responseTxt);
+			print(resp);
+			persist(resp);
+		}
+		
+	}
+	
+	private static Map<String, String> getScrollParams(String scrollId) {
+	//private static HttpEntity getScrollParams(String scrollId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("scroll_id", scrollId);
+		params.put("scroll", "5m");
+		return params;
+		/*
+		JSONObject obj = new JSONObject();
+		obj.put("scroll", "5m");
+		obj.put("scroll_id", scrollId);
+		params.put("body", obj.toJSONString());
+		return params;
+		
+		HttpEntity entity = new org.apache.http.entity.StringEntity(obj.toJSONString(), ContentType.APPLICATION_JSON);
+		return entity;
+		*/
 	}
 	
 }
