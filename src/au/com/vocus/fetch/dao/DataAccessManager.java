@@ -65,13 +65,13 @@ public class DataAccessManager {
 			WatchedMedia data = (WatchedMedia) event.getData();
 			if(isNewRecord(data, lastEventDate)) {
 				insertParams(record, data);
-				pStmt.execute();
+				pStmt.executeUpdate();
 			}
 			newEventDate = (newEventDate == null || data.getEventTime() > newEventDate) ? data.getEventTime() : newEventDate;
 		}
 		return newEventDate;
 	}
-	
+
 	private String buildSql() {
 		return "INSERT INTO fetchtv.watched_media_event ("
 				+ " isp_customer_ref,"
