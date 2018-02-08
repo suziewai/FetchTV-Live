@@ -19,7 +19,8 @@ public class FetchTvRecord extends ElasticRecord{
 	public void setMembers(JSONObject json) {
 		super.setMembers(json);
 		ispCustomerRef = (String)_source.get("ispCustomerRef");
-		terminalUUID = (String)_source.get("teriminalUUID");
+		//terminalUUID = (String)_source.get("teriminalUUID");
+		terminalUUID = (String)_source.get("terminalID");
 		householdUUID = (String)_source.get("householdUUID");
 		
 		events = new ArrayList<Event>();

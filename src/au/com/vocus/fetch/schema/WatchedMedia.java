@@ -18,18 +18,18 @@ public class WatchedMedia implements Data {
 	private String episodeId;
 	private String recordingId;
 	
-	private Long mediaDuration;
-	private Long durationWatched;
-	private Double percentageWatched;
+	private String mediaDuration;
+	private String durationWatched;
+	private String percentageWatched;
 	
 	private String baseType;
 	private String mediaType;
 	
-	private Long item_identifier;
-	private Long dataReceived;
-	private Long averageBitRate;
-	private Long hlsMaxStream;
-	private Long hlsMinStream;
+	private String item_identifier;
+	private String dataReceived;
+	private String averageBitRate;
+	private String hlsMaxStream;
+	private String hlsMinStream;
 	
 	private String title;
 	private String applicationName;
@@ -43,35 +43,39 @@ public class WatchedMedia implements Data {
 		eventTime = (Long)json.get("eventTime");
 		endDate = (Long)json.get("endDate");
 		
-		previousSurface = (String)json.get("previousSurface");
-		currentSurface = (String)json.get("currentSurface");
-		navigationSource = (String)json.get("navigationSource");
+		previousSurface = extractData(json, "previousSurface");
+		currentSurface = extractData(json, "currentSurface");
+		navigationSource = extractData(json, "navigationSource");
 		
-		channelId = json.get("channelId") != null ? json.get("channelId").toString() : null;
-		programId = json.get("programId") != null ? json.get("programId").toString() : null;
-		seriesId = json.get("seriesId") != null ? json.get("seriesId").toString() : null;
-		episodeId = json.get("episodeId") != null ? json.get("episodeId").toString() : null;
-		recordingId = json.get("recordingId") != null ? json.get("recordingId").toString() : null;
+		channelId = extractData(json, "channelId");
+		programId = extractData(json, "programId");
+		seriesId = extractData(json, "seriesId");
+		episodeId = extractData(json, "episodeId");
+		recordingId = extractData(json, "recordingId");
 		
-		mediaDuration = (Long)json.get("mediaDuration");
-		durationWatched = (Long)json.get("durationWatched");
-		percentageWatched= (Double)json.get("percentageWatched");
+		mediaDuration = extractData(json, "mediaDuration");
+		durationWatched = extractData(json, "durationWatched");
+		percentageWatched = extractData(json, "percentageWatched");
 		
-		baseType = (String)json.get("baseType");
-		mediaType = (String)json.get("mediaType");
+		baseType = extractData(json, "baseType");
+		mediaType = extractData(json, "mediaType");
 		
-		item_identifier = (Long)json.get("item_identifier");
-		dataReceived = (Long)json.get("dataReceived");
-		averageBitRate = (Long)json.get("averageBitRate");
-		hlsMaxStream = (Long)json.get("hlsMaxStream");
-		hlsMinStream = (Long)json.get("hlsMinStream");
+		item_identifier = extractData(json, "item_identifier");
+		dataReceived = extractData(json, "dataReceived");
+		averageBitRate = extractData(json, "averageBitRate");
+		hlsMaxStream = extractData(json, "hlsMaxStream");
+		hlsMinStream = extractData(json, "hlsMinStream");
 		
-		title = (String)json.get("title");
-		applicationName = (String)json.get("applicationName");
-		seriesName = (String)json.get("seriesName");
-		viewActions = (String)json.get("viewActions");
-		programsWatched = (String)json.get("programsWatched");
+		title = extractData(json, "title");
+		applicationName = extractData(json, "applicationName");
+		seriesName = extractData(json, "seriesName");
+		viewActions = extractData(json, "viewActions");
+		programsWatched = extractData(json, "programsWatched");
 		
+	}
+	
+	private String extractData(JSONObject json, String name) {
+		return json.get(name) != null ? json.get(name).toString() : null;
 	}
 	
 	@Override
@@ -152,21 +156,21 @@ public class WatchedMedia implements Data {
 	/**
 	 * @return the mediaDuration
 	 */
-	public Long getMediaDuration() {
+	public String getMediaDuration() {
 		return mediaDuration;
 	}
 
 	/**
 	 * @return the durationWatched
 	 */
-	public Long getDurationWatched() {
+	public String getDurationWatched() {
 		return durationWatched;
 	}
 
 	/**
 	 * @return the percentageWatched
 	 */
-	public Double getPercentageWatched() {
+	public String getPercentageWatched() {
 		return percentageWatched;
 	}
 
@@ -187,35 +191,35 @@ public class WatchedMedia implements Data {
 	/**
 	 * @return the item_identifier
 	 */
-	public Long getItem_identifier() {
+	public String getItem_identifier() {
 		return item_identifier;
 	}
 
 	/**
 	 * @return the dataReceived
 	 */
-	public Long getDataReceived() {
+	public String getDataReceived() {
 		return dataReceived;
 	}
 
 	/**
 	 * @return the averageBitRate
 	 */
-	public Long getAverageBitRate() {
+	public String getAverageBitRate() {
 		return averageBitRate;
 	}
 
 	/**
 	 * @return the hlsMaxStream
 	 */
-	public Long getHlsMaxStream() {
+	public String getHlsMaxStream() {
 		return hlsMaxStream;
 	}
 
 	/**
 	 * @return the hlsMinStream
 	 */
-	public Long getHlsMinStream() {
+	public String getHlsMinStream() {
 		return hlsMinStream;
 	}
 
