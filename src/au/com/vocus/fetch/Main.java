@@ -2,6 +2,8 @@ package au.com.vocus.fetch;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ public class Main {
 	static FetchProperty prop = new FetchProperty();
 	static Long lastEventDate = prop.getLastEventDate();
 	static Long newEventDate = lastEventDate;
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 	
 	/**
 	 * @param args
@@ -46,7 +49,9 @@ public class Main {
 			
 			ElasticResponse<FetchTvRecord> resp = parseResponse(responseTxt);
 			//print(resp);
-			persist(resp);
+			persistToFile(resp);
+
+			
 			//scroll(restClient, resp);
 			restClient.close();
 			
@@ -79,7 +84,7 @@ public class Main {
 		
 		Match event = new Match();
 		event.setField("events.event");
-		event.setMatch(" watchedMedia");
+		event.setMatch("watchedMedia");
 		must.addCriteria(event);
 		
 		/*
@@ -106,7 +111,26 @@ public class Main {
 		return eObj;
 	}
 	
-	private static void persist(ElasticResponse<FetchTvRecord> records) {
+	private static void persistToFile(ElasticResponse<FetchTvRecord> records) {
+		System.out.println(new java.util.Date() + " - Creating file...");
+		//try {
+			FileWriter fw = new FileWriter();
+			String filename = sdf.format(new Date());
+			fw.createFolder("fetchtv");
+			fw.createFile(filename, "|", true);
+			
+			for(FetchTvRecord record : records.getHits().getRecords()) {
+				Long tempEventDate = fw.writeRecord(record, lastEventDate);
+				newEventDate = (newEventDate == null || tempEventDate > newEventDate) ? tempEventDate : newEventDate;
+			}
+
+			fw.closeFile();
+		//}
+		
+		System.out.println(new java.util.Date() + " - Writing to file commpleted!");
+	}
+		
+	private static void persistToDB(ElasticResponse<FetchTvRecord> records) {
 		System.out.println(new java.util.Date() + " - Establishing DB connection...");
 		try {
 			DataAccessManager manager = new DataAccessManager(prop.getConnectionString(), prop.getUsername(), prop.getPassword());
@@ -160,7 +184,7 @@ public class Main {
 			EntityUtils.consume(response.getEntity());
 			resp = parseResponse(responseTxt);
 			print(resp);
-			persist(resp);
+			//persist(resp);
 		}
 		
 	}
